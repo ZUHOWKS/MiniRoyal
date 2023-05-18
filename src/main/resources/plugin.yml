@@ -1,0 +1,14 @@
+name: MiniRoyal
+version: '${project.version}'
+main: fr.zuhowks.miniroyal.MiniRoyal
+
+commands:
+  amr:
+    description: Admin command of Mini-Royal
+    usage: /amr
+    permission: miniroyal.admin
+
+permissions:
+  miniroyal.admin:
+    default: op
+    description: admin permission
