@@ -1,8 +1,14 @@
 package fr.zuhowks.miniroyal.commands;
 
+import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.data.DataException;
 import fr.zuhowks.miniroyal.MiniRoyal;
 import fr.zuhowks.miniroyal.lobby.Lobby;
+import fr.zuhowks.miniroyal.map.MiniRoyalMap;
+import fr.zuhowks.miniroyal.map.Zone;
 import fr.zuhowks.miniroyal.utils.SetupModItems;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -12,7 +18,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.Plugin;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -49,35 +58,47 @@ public class CommandAdmin implements CommandExecutor {
                             p.updateInventory();
                             p.sendMessage(prefixMessage + ChatColor.GREEN + "Setup of the lobby turn on !");
 
+                        } else if (args[0].equalsIgnoreCase("setupmap")) {
+                            setupMap(p.getInventory());
+                            p.updateInventory();
+                            p.sendMessage(prefixMessage + ChatColor.GREEN + "Setup of the map turn on !");
                         }
                     } else if (argsLen == 2) {
                         if (args[0].equalsIgnoreCase("setuplobby")) {
                             if (args[1].equalsIgnoreCase("setspawn")) {
                                 INSTANCE.getLobby().setSpawnLocation(p.getLocation());
-                                p.sendMessage(prefixMessage + ChatColor.GREEN + "Spawn location as benn set !");
+                                p.sendMessage(prefixMessage + ChatColor.GREEN + "Spawn location as been set !" + ChatColor.GRAY + "(/amr setuplobby confirm to apply change)");
+
                             } else if (args[1].equalsIgnoreCase("confirm")) {
-                                //TODO: Save Lobby change in yml
-                                Lobby l = INSTANCE.getLobby();
-                                FileConfiguration config = INSTANCE.getFileConfiguration();
-                                config.set("lobby.pos1", l.getPos1());
-                                config.set("lobby.pos2", l.getPos2());
-                                config.set("lobby.spawn", l.getSpawnLocation());
-                                INSTANCE.saveConfig();
+                                INSTANCE.getLobby().saveLobbyToFIle();
                                 setupMod(p.getInventory());
                                 p.sendMessage(prefixMessage + ChatColor.GREEN + "Change has been saved successfully !");
 
                             } else if (args[1].equalsIgnoreCase("cancel")) {
-                                Lobby l = INSTANCE.getLobby();
-                                FileConfiguration config = INSTANCE.getFileConfiguration();
-                                l.setPos1((Location) config.get("lobby.pos1"));
-                                l.setPos2((Location) config.get("lobby.pos2"));
-                                l.setSpawnLocation((Location) config.get("lobby.spawn"));
+                                INSTANCE.getLobby().loadLobbyFromFile();
                                 setupMod(p.getInventory());
                                 p.sendMessage(prefixMessage + ChatColor.RED + "Change has been cancelled successfully !");
 
                             } else if (args[1].equalsIgnoreCase("setpos")) {
                                 setupLobbyPosition(p.getInventory());
-                                p.sendMessage(prefixMessage + ChatColor.GREEN + "Use items in your inventory to setup the lobby position.");
+                                p.sendMessage(prefixMessage + ChatColor.GREEN + "Use items in your inventory to setup the lobby position." + ChatColor.GRAY + "(/amr setuplobby confirm to apply change)");
+
+                            }
+                        } else if (args[0].equalsIgnoreCase("setupmap")) {
+                            if (args[1].equalsIgnoreCase("finishzone")) {
+                                INSTANCE.getMiniRoyalMap().setFinishZoneCenter(p.getLocation());
+                                p.sendMessage(prefixMessage + ChatColor.GREEN + "Finish zone location as been set !" + ChatColor.GRAY + "(/amr setupmap confirm to apply change)");
+
+                            } else if (args[1].equalsIgnoreCase("confirm")) {
+                                INSTANCE.getMiniRoyalMap().saveMapToFile();
+                                setupMod(p.getInventory());
+                                p.sendMessage(prefixMessage + ChatColor.GREEN + "Change has been saved successfully !");
+
+                            } else if (args[1].equalsIgnoreCase("cancel")) {
+                                INSTANCE.getMiniRoyalMap().loadMapFromFile();
+                                setupMod(p.getInventory());
+                                p.sendMessage(prefixMessage + ChatColor.RED + "Change has been cancelled successfully !");
+
                             }
                         }
                     }
@@ -87,9 +108,19 @@ public class CommandAdmin implements CommandExecutor {
                         setupMod(p.getInventory());
                         p.updateInventory();
                         p.sendMessage(prefixMessage + ChatColor.GREEN + "Setup mod activate ! Use items in your inventory to setup the party without command.");
+                    } else if (args[0].equalsIgnoreCase("enable")) {
+                        INSTANCE.setPartyIsSetup(true);
+                        INSTANCE.getFileConfiguration().set("party.isSetup", true);
+                        INSTANCE.saveConfig();
+                        p.sendMessage(prefixMessage + ChatColor.GREEN + "Party is now enabled !");
+                    } else if (args[0].equalsIgnoreCase("disable")) {
+                        INSTANCE.setPartyIsSetup(false);
+                        INSTANCE.getFileConfiguration().set("party.isSetup", false);
+                        INSTANCE.saveConfig();
+                        p.sendMessage(prefixMessage + ChatColor.RED + "Party is now disabled !");
                     }
                 } else {
-
+                    p.sendMessage(prefixMessage + ChatColor.RED + "Perform /amr help to view the list of command");
                 }
 
                 return true;
@@ -101,8 +132,8 @@ public class CommandAdmin implements CommandExecutor {
 
     private void setupMod(PlayerInventory inv) {
         inv.clear();
-        inv.setItem(0, SetupModItems.SETUP_LOBBY.getItemStack());
-        //TODO: ADD ITEM SETUP
+        inv.setItem(2, SetupModItems.SETUP_LOBBY.getItemStack());
+        inv.setItem(6, SetupModItems.SETUP_MAP.getItemStack());
 
     }
 
@@ -112,9 +143,19 @@ public class CommandAdmin implements CommandExecutor {
         inv.setItem(7, SetupModItems.SETUP_LOBBY_CONFIRM.getItemStack());
         inv.setItem(8, SetupModItems.SETUP_LOBBY_CANCEL.getItemStack());
     }
+
     private void setupLobby(PlayerInventory inv) {
         setupLobbyPosition(inv);
         inv.setItem(4, SetupModItems.SET_LOBBY_SPAWN.getItemStack());
+    }
+
+    private void setupMap(PlayerInventory inv) {
+        inv.clear();
+        inv.setItem(0, SetupModItems.SET_MAP_POS.getItemStack());
+        inv.setItem(4, SetupModItems.SET_MAP_FINISH_ZONE.getItemStack());
+        inv.setItem(6, SetupModItems.SET_MAP_CHEST.getItemStack());
+        inv.setItem(7, SetupModItems.SETUP_MAP_CONFIRM.getItemStack());
+        inv.setItem(8, SetupModItems.SETUP_MAP_CANCEL.getItemStack());
     }
 
 

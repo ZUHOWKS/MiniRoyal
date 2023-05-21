@@ -1,6 +1,9 @@
 name: MiniRoyal
 version: '${project.version}'
 main: fr.zuhowks.miniroyal.MiniRoyal
+depend:
+  - WorldEdit
+load: POSTWORLD
 
 commands:
   amr:
