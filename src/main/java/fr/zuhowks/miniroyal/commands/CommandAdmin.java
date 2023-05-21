@@ -1,27 +1,15 @@
 package fr.zuhowks.miniroyal.commands;
 
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.data.DataException;
 import fr.zuhowks.miniroyal.MiniRoyal;
-import fr.zuhowks.miniroyal.lobby.Lobby;
-import fr.zuhowks.miniroyal.map.MiniRoyalMap;
-import fr.zuhowks.miniroyal.map.Zone;
 import fr.zuhowks.miniroyal.utils.SetupModItems;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

@@ -1,7 +1,6 @@
 package fr.zuhowks.miniroyal.lobby;
 
 import fr.zuhowks.miniroyal.MiniRoyal;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;

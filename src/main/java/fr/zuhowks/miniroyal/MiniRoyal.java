@@ -1,6 +1,5 @@
 package fr.zuhowks.miniroyal;
 
-import com.sk89q.worldedit.WorldEditException;
 import fr.zuhowks.miniroyal.commands.CommandAdmin;
 import fr.zuhowks.miniroyal.listener.PlayerListener;
 import fr.zuhowks.miniroyal.lobby.Lobby;
@@ -11,10 +10,8 @@ import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
