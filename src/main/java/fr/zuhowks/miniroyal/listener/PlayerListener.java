@@ -2,6 +2,7 @@ package fr.zuhowks.miniroyal.listener;
 
 import fr.zuhowks.miniroyal.MiniRoyal;
 import fr.zuhowks.miniroyal.utils.SetupModItems;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -58,7 +59,7 @@ public class PlayerListener implements Listener {
                                 p.sendMessage(prefixMessage + ChatColor.GREEN + "Position 2 as been set !");
 
                             }
-                        } else if (setupModItem == SetupModItems.SET_MAP_CHEST) {
+                        } else if (setupModItem == SetupModItems.SET_MAP_CHEST && event.getClickedBlock().getType() != Material.CHEST) {
                             event.setCancelled(false);
                         }
                     }

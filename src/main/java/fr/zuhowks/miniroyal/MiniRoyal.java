@@ -48,7 +48,7 @@ public final class MiniRoyal extends JavaPlugin {
         this.getCommand("amr").setExecutor(new CommandAdmin());
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 
-        final Particle particle = Particle.SPELL_INSTANT;
+        final Particle particle = Particle.PORTAL;
 
         //Zone simulation
         Bukkit.getScheduler().scheduleSyncRepeatingTask(MiniRoyal.getPlugin(MiniRoyal.class), () ->{
