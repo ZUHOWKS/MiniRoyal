@@ -1,17 +1,19 @@
 package fr.zuhowks.miniroyal.map.chests;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChestsRegistry {
+public class ChestRegistry {
     private List<Location> chestLocations;
 
-    public ChestsRegistry() {
+    public ChestRegistry() {
         this.chestLocations = new ArrayList<>();
     }
-    public ChestsRegistry(List<Location> chestLocations) {
+    public ChestRegistry(List<Location> chestLocations) {
         this.chestLocations = chestLocations;
     }
 
@@ -29,5 +31,17 @@ public class ChestsRegistry {
 
     public void setChestLocations(List<Location> chestLocations) {
         this.chestLocations = chestLocations;
+    }
+
+    public void setBlockChests() {
+        for (Location location : this.chestLocations) {
+            location.getBlock().setType(Material.CHEST);
+        }
+    }
+
+    public void removeBlockChest() {
+        for (Location location : this.chestLocations) {
+            location.getBlock().setType(Material.AIR);
+        }
     }
 }

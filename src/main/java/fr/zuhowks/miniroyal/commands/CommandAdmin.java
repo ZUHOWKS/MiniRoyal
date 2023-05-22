@@ -32,13 +32,10 @@ public class CommandAdmin implements CommandExecutor {
                             PlayerInventory inv = p.getInventory();
                             UUID uuid = p.getUniqueId();
                             Map<UUID, ItemStack[]> inventoryMap = INSTANCE.getInventoryRegistry();
-
-
                             inv.setContents(inventoryMap.get(uuid));
-
                             p.updateInventory();
                             inventoryMap.remove(uuid);
-
+                            INSTANCE.getMiniRoyalMap().getChestRegistry().removeBlockChest();
                             p.sendMessage(prefixMessage + ChatColor.GREEN + "Setup mod disable !");
 
                         } else if (args[0].equalsIgnoreCase("setuplobby")) {
@@ -95,6 +92,7 @@ public class CommandAdmin implements CommandExecutor {
                         INSTANCE.getInventoryRegistry().put(p.getUniqueId(), p.getInventory().getContents());
                         setupMod(p.getInventory());
                         p.updateInventory();
+                        INSTANCE.getMiniRoyalMap().getChestRegistry().setBlockChests();
                         p.sendMessage(prefixMessage + ChatColor.GREEN + "Setup mod activate ! Use items in your inventory to setup the party without command.");
                     } else if (args[0].equalsIgnoreCase("enable")) {
                         INSTANCE.setPartyIsSetup(true);

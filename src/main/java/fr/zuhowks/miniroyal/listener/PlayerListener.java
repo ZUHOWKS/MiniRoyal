@@ -58,6 +58,8 @@ public class PlayerListener implements Listener {
                                 p.sendMessage(prefixMessage + ChatColor.GREEN + "Position 2 as been set !");
 
                             }
+                        } else if (setupModItem == SetupModItems.SET_MAP_CHEST) {
+                            event.setCancelled(false);
                         }
                     }
                 }
@@ -70,10 +72,12 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         Player p = event.getPlayer();
-        event.setCancelled(MiniRoyal.getINSTANCE().isInSetupMod(p));
-        if (MiniRoyal.getINSTANCE().getMiniRoyalMap().getChestsRegistry().removeChest(event.getBlock().getLocation())) {
-            event.setCancelled(false);
-            p.sendMessage(prefixMessage + ChatColor.GREEN + "Chest removed from the map.");
+        if (MiniRoyal.getINSTANCE().isInSetupMod(p)) {
+            if (MiniRoyal.getINSTANCE().getMiniRoyalMap().getChestRegistry().removeChest(event.getBlock().getLocation())) {
+                p.sendMessage(prefixMessage + ChatColor.GREEN + "Chest removed from the map.");
+            } else {
+                event.setCancelled(true);
+            }
         }
 
     }
@@ -81,16 +85,16 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onBuild(BlockPlaceEvent event) {
         Player p = event.getPlayer();
-        event.setCancelled(MiniRoyal.getINSTANCE().isInSetupMod(p));
-        if (event.isCancelled()) {
+        if (MiniRoyal.getINSTANCE().isInSetupMod(p)) {
             ItemStack itemStack = event.getItemInHand();
             if (itemStack != null) {
                 SetupModItems setupModItem = SetupModItems.isInSetupModItems(itemStack);
+                System.out.println(itemStack.getItemMeta().getDisplayName());
                 if (setupModItem == SetupModItems.SET_MAP_CHEST) {
-                    event.setBuild(true);
-                    event.setCancelled(false);
-                    MiniRoyal.getINSTANCE().getMiniRoyalMap().getChestsRegistry().addChest(event.getBlock().getLocation());
+                    MiniRoyal.getINSTANCE().getMiniRoyalMap().getChestRegistry().addChest(event.getBlock().getLocation());
                     p.sendMessage(prefixMessage + ChatColor.GREEN + "Chest added to the map.");
+                } else {
+                    event.setCancelled(true);
                 }
             }
         }
@@ -104,7 +108,7 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onDrop(PlayerPickupItemEvent event) {
+    public void onPickup(PlayerPickupItemEvent event) {
         Player p = event.getPlayer();
         event.setCancelled(MiniRoyal.getINSTANCE().isInSetupMod(p));
     }

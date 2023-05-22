@@ -17,7 +17,7 @@ import com.sk89q.worldedit.schematic.MCEditSchematicFormat;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
 import fr.zuhowks.miniroyal.MiniRoyal;
-import fr.zuhowks.miniroyal.map.chests.ChestsRegistry;
+import fr.zuhowks.miniroyal.map.chests.ChestRegistry;
 import fr.zuhowks.miniroyal.utils.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -36,14 +36,14 @@ public class MiniRoyalMap {
 
     private final MiniRoyal INSTANCE = MiniRoyal.getINSTANCE();
 
-    private final ChestsRegistry chestsRegistry;
+    private final ChestRegistry chestRegistry;
 
     public MiniRoyalMap(Location pos1, Location pos2, Location finishZoneCenter, int finishZoneRadius) {
         this.pos1 = pos1;
         this.pos2 = pos2;
         this.finishZoneCenter = finishZoneCenter;
         this.finishZoneRadius = finishZoneRadius;
-        this.chestsRegistry = new ChestsRegistry();
+        this.chestRegistry = new ChestRegistry();
     }
 
     public Location getPos1() {
@@ -54,8 +54,8 @@ public class MiniRoyalMap {
         return pos2;
     }
 
-    public ChestsRegistry getChestsRegistry() {
-        return chestsRegistry;
+    public ChestRegistry getChestRegistry() {
+        return chestRegistry;
     }
 
     public Location getFinishZoneCenter() {
@@ -74,8 +74,6 @@ public class MiniRoyalMap {
         this.pos2 = pos2;
     }
 
-
-
     public void setFinishZoneCenter(Location finishZoneCenter) {
         this.finishZoneCenter = finishZoneCenter;
     }
@@ -89,7 +87,8 @@ public class MiniRoyalMap {
         this.setPos1((Location) config.get("map.pos1"));
         this.setPos2((Location) config.get("map.pos2"));
         this.setFinishZoneCenter((Location) config.get("map.finish-zone-center"));
-        this.getChestsRegistry().setChestLocations((List<Location>) config.getList("map.chests"));
+        this.getChestRegistry().setChestLocations((List<Location>) config.getList("map.chests"));
+        INSTANCE.updateZone();
     }
 
     public void saveMapToFile() {
@@ -97,8 +96,9 @@ public class MiniRoyalMap {
         config.set("map.pos1", this.getPos1());
         config.set("map.pos2", this.getPos2());
         config.set("map.finish-zone-center", this.getFinishZoneCenter());
-        config.set("map.chests", this.getChestsRegistry().getChestLocations());
+        config.set("map.chests", this.getChestRegistry().getChestLocations());
         INSTANCE.saveConfig();
+        INSTANCE.updateZone();
     }
 
     public void saveBuild() throws IOException, WorldEditException {
