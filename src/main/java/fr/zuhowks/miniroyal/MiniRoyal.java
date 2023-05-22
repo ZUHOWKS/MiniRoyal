@@ -143,8 +143,12 @@ public final class MiniRoyal extends JavaPlugin {
     public void forceDisableSetupModForAll() {
         Map<UUID, ItemStack[]> inventoryRegistry = this.getInventoryRegistry();
         for (UUID uuid : inventoryRegistry.keySet()) {
-            Bukkit.getPlayer(uuid).chat("/amr setupmod");
+            Player p = Bukkit.getPlayer(uuid);
+            p.getInventory().setContents(inventoryRegistry.get(uuid));
+            p.updateInventory();
+            inventoryRegistry.remove(uuid);
         }
+        this.miniRoyalMap.getChestRegistry().removeBlockChest();
     }
 
     public boolean partyIsSetup() {
