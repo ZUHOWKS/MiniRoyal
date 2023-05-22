@@ -1,30 +1,11 @@
 package fr.zuhowks.miniroyal.map;
 
 
-import com.sk89q.worldedit.*;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.data.DataException;
-import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
-import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.schematic.MCEditSchematicFormat;
-import com.sk89q.worldedit.session.ClipboardHolder;
-import com.sk89q.worldedit.world.World;
 import fr.zuhowks.miniroyal.MiniRoyal;
 import fr.zuhowks.miniroyal.map.chests.ChestRegistry;
-import fr.zuhowks.miniroyal.utils.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 public class MiniRoyalMap {
@@ -99,44 +80,5 @@ public class MiniRoyalMap {
         config.set("map.chests", this.getChestRegistry().getChestLocations());
         INSTANCE.saveConfig();
         INSTANCE.updateZone();
-    }
-
-    public void saveBuild() throws IOException, WorldEditException {
-        World world = new BukkitWorld(this.getPos1().getWorld());
-        CuboidRegion region = new CuboidRegion(BukkitUtils.getVector(getPos1()), BukkitUtils.getVector(getPos2()));
-        BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-
-        ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
-                BukkitUtils.getEditSessionFromWorldEdit(world), region, clipboard, region.getMinimumPoint()
-        );
-        Operations.complete(forwardExtentCopy);
-        ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(Files.newOutputStream(getSchematicFile().toPath()));
-        writer.write(clipboard, world.getWorldData());
-    }
-
-    public void loadBuild() throws IOException, WorldEditException {
-        Clipboard clipboard;
-        World world = new BukkitWorld(this.getPos1().getWorld());
-        ClipboardReader reader = ClipboardFormat.SCHEMATIC.getReader(Files.newInputStream(getSchematicFile().toPath()));
-        clipboard = reader.read(world.getWorldData());
-        Operation operation = new ClipboardHolder(clipboard, world.getWorldData())
-                .createPaste(BukkitUtils.getEditSessionFromWorldEdit(world), world.getWorldData())
-                .to(new BlockVector(clipboard.getMinimumPoint()))
-                .build();
-        Operations.complete(operation);
-    }
-
-    public void loadBuildWithCuboidClipboard() throws IOException, DataException, MaxChangedBlocksException {
-        World world = new BukkitWorld(this.getPos1().getWorld());
-        CuboidClipboard clipboard = MCEditSchematicFormat.getFormat(getSchematicFile()).load(getSchematicFile());
-        clipboard.paste(BukkitUtils.getEditSessionFromWorldEdit(world), Vector.getMinimum(BukkitUtils.getVector(getPos1()), BukkitUtils.getVector(getPos2())), false);
-    }
-
-    private File getSchematicFile() throws IOException {
-        File file = new File(INSTANCE.getDataFolder() + File.separator + "map.schematic");
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-        return file;
     }
 }

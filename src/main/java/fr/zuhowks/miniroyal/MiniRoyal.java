@@ -1,6 +1,5 @@
 package fr.zuhowks.miniroyal;
 
-import com.sk89q.worldedit.Vector;
 import fr.zuhowks.miniroyal.commands.CommandAdmin;
 import fr.zuhowks.miniroyal.listener.PlayerListener;
 import fr.zuhowks.miniroyal.lobby.Lobby;
@@ -15,9 +14,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.zip.ZipEntry;
 
 public final class MiniRoyal extends JavaPlugin {
 
@@ -26,11 +25,11 @@ public final class MiniRoyal extends JavaPlugin {
     private static MiniRoyal INSTANCE;
     private FileConfiguration config;
     private final Map<UUID, ItemStack[]> inventoryRegistry = new HashMap<>(); //For setup mod
-    private boolean partyIsSetup;
+    private boolean partyIsSetup = false;
     private Lobby lobby;
     private MiniRoyalMap miniRoyalMap;
     private Zone zone;
-    private boolean isInGame;
+    private boolean isInGame = false;
 
 
     @Override
@@ -51,39 +50,49 @@ public final class MiniRoyal extends JavaPlugin {
 
         final Particle particle = Particle.SPELL_INSTANT;
 
+        //Zone simulation
         Bukkit.getScheduler().scheduleSyncRepeatingTask(MiniRoyal.getPlugin(MiniRoyal.class), () ->{
-            List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-            final Location center = this.miniRoyalMap.getFinishZoneCenter();
+            if (isInGame) {
+                List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+                final Location center = this.miniRoyalMap.getFinishZoneCenter();
 
-            final double radius = this.zone.getRadius();
-            final double radiusCoef = Math.min(100/radius, 2);
-            final int particleNumber = 9;
+                final double radius = this.zone.getRadius();
+                final double radiusCoef = Math.min(50/radius, 2);
+                int particleNumber = 7;
 
-            for (Player p : players) {
-                final Location playerLoc = p.getLocation();
-                final double distRadius = radius - BukkitUtils.getVectorNormInPlanXZ(playerLoc, center);
+                List<Vector> vectors = new ArrayList<>();
 
-                if (0 < distRadius && distRadius <= 10 && 0.1 < radius ) {
-                    Vector playerVec = BukkitUtils.getVector(center, playerLoc);
-                    Vector baseVec = new Vector(radius, 0, 0);
+                for (Player p : players) {
+                    final Location playerLoc = p.getLocation();
+                    final double distRadius = radius - BukkitUtils.getVectorNormInPlanXZ(playerLoc, center);
 
-                    double angle = BukkitUtils.getAngleInPlanXZ(baseVec, playerVec);
 
-                    final double signedRadius = (playerLoc.getBlockZ() < center.getZ() ? -1 : 1)*radius;
+                    if (0 < distRadius && distRadius < 25 && 0.1 < radius ) {
+                        Vector playerVec = BukkitUtils.getVector(center, playerLoc);
+                        Vector baseVec = new Vector(radius, 0, 0);
 
-                    for (int i=-30; i<30; i+=5) {
-                        for (int j=-3; j<5; j+=1) {
-                            final double x = radius*Math.cos(angle + radiusCoef*i*Math.PI/180) + center.getX();
-                            final double y = playerLoc.getY() + j;
-                            final double z = signedRadius*Math.sin(angle + radiusCoef*i*Math.PI/180) + center.getZ();
+                        double angle = BukkitUtils.getAngleInPlanXZ(baseVec, playerVec);
+                        final double signedRadius = (playerLoc.getBlockZ() < center.getZ() ? -1 : 1)*radius;
 
-                            playerLoc.getWorld().spawnParticle(particle, x, y, z, (int) (radius/this.zone.getMaxRadius() * particleNumber), 1.2, 10, 1.2);
+                        particleNumber -= (((distRadius+1)/2)-5);
 
+                        for (int i=-30; i<=30; i+=5) {
+                            for (int j=-3; j<5; j+=1) {
+                                final double x = Math.round((float) (radius*Math.cos(angle + radiusCoef*i*Math.PI/180) + center.getX()));
+                                final double y = playerLoc.getY() + j;
+                                final double z = Math.round((float) (signedRadius*Math.sin(angle + radiusCoef*i*Math.PI/180) + center.getZ()));
+
+                                Vector particleVec = new Vector(x, y, z);
+                                if (!vectors.contains(particleVec)) {
+                                    vectors.add(particleVec);
+                                    playerLoc.getWorld().spawnParticle(particle, x, y, z, (int) (radius/this.zone.getMaxRadius() * particleNumber), 1.2, 10, 1.2);
+                                }
+
+                            }
                         }
-                    }
-                } else if (distRadius < 0 || radius <= 0.1) {
-                    for (int i=0; i<360; i+=45) {
-                        for (int j=0; j<4; j+=1) {
+                    } else if (distRadius < 0 || radius <= 0.1) {
+                        for (int i=0; i<=360; i+=45) {
+                            for (int j=0; j<4; j+=1) {
                                 final double x = 3*Math.cos(i*Math.PI/180) + playerLoc.getX();
                                 final double y = playerLoc.getY() + j;
                                 final double z = 3*Math.sin(i*Math.PI/180) + playerLoc.getZ();
@@ -91,6 +100,7 @@ public final class MiniRoyal extends JavaPlugin {
                                 playerLoc.getWorld().spawnParticle(particle, x, y, z, (int) (radius/this.zone.getMaxRadius() * particleNumber), 2, 3, 2);
                                 p.damage(Math.max(this.zone.getMaxRadius()/Math.max(radius, 0.1), 5)*1);
 
+                            }
                         }
                     }
                 }
