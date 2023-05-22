@@ -35,7 +35,9 @@ public class CommandAdmin implements CommandExecutor {
                             inv.setContents(inventoryMap.get(uuid));
                             p.updateInventory();
                             inventoryMap.remove(uuid);
-                            INSTANCE.getMiniRoyalMap().getChestRegistry().removeBlockChest();
+                            if (inventoryMap.size() == 0) {
+                                INSTANCE.getMiniRoyalMap().getChestRegistry().removeBlockChest();
+                            }
                             p.sendMessage(prefixMessage + ChatColor.GREEN + "Setup mod disable !");
 
                         } else if (args[0].equalsIgnoreCase("setuplobby")) {

@@ -64,20 +64,24 @@ public class MiniRoyalMap {
     }
 
     public void loadMapFromFile() {
+        this.getChestRegistry().removeBlockChest();
         FileConfiguration config = INSTANCE.getFileConfiguration();
         this.setPos1((Location) config.get("map.pos1"));
         this.setPos2((Location) config.get("map.pos2"));
         this.setFinishZoneCenter((Location) config.get("map.finish-zone-center"));
         this.getChestRegistry().setChestLocations((List<Location>) config.getList("map.chests"));
+        this.getChestRegistry().setBlockChests();
         INSTANCE.updateZone();
     }
 
     public void saveMapToFile() {
+        this.getChestRegistry().removeBlockChest();
         FileConfiguration config = INSTANCE.getFileConfiguration();
         config.set("map.pos1", this.getPos1());
         config.set("map.pos2", this.getPos2());
         config.set("map.finish-zone-center", this.getFinishZoneCenter());
         config.set("map.chests", this.getChestRegistry().getChestLocations());
+        this.getChestRegistry().setBlockChests();
         INSTANCE.saveConfig();
         INSTANCE.updateZone();
     }
