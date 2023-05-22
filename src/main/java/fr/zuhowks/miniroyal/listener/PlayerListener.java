@@ -59,8 +59,8 @@ public class PlayerListener implements Listener {
                                 p.sendMessage(prefixMessage + ChatColor.GREEN + "Position 2 as been set !");
 
                             }
-                        } else if (setupModItem == SetupModItems.SET_MAP_CHEST && event.getClickedBlock().getType() != Material.CHEST) {
-                            event.setCancelled(false);
+                        } else if (setupModItem == SetupModItems.SET_MAP_CHEST) {
+                            event.setCancelled(event.getClickedBlock().getType() == Material.CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK);
                         }
                     }
                 }
@@ -90,7 +90,6 @@ public class PlayerListener implements Listener {
             ItemStack itemStack = event.getItemInHand();
             if (itemStack != null) {
                 SetupModItems setupModItem = SetupModItems.isInSetupModItems(itemStack);
-                System.out.println(itemStack.getItemMeta().getDisplayName());
                 if (setupModItem == SetupModItems.SET_MAP_CHEST) {
                     MiniRoyal.getINSTANCE().getMiniRoyalMap().getChestRegistry().addChest(event.getBlock().getLocation());
                     p.sendMessage(prefixMessage + ChatColor.GREEN + "Chest added to the map.");
