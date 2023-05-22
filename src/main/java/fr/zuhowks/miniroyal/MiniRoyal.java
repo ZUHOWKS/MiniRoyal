@@ -93,9 +93,9 @@ public final class MiniRoyal extends JavaPlugin {
                     } else if (distRadius < 0 || radius <= 0.1) {
                         for (int i=0; i<=360; i+=45) {
                             for (int j=0; j<4; j+=1) {
-                                final double x = 3*Math.cos(i*Math.PI/180) + playerLoc.getX();
+                                final double x = 4*Math.cos(i*Math.PI/180) + playerLoc.getX();
                                 final double y = playerLoc.getY() + j;
-                                final double z = 3*Math.sin(i*Math.PI/180) + playerLoc.getZ();
+                                final double z = 4*Math.sin(i*Math.PI/180) + playerLoc.getZ();
 
                                 playerLoc.getWorld().spawnParticle(particle, x, y, z, (int) (radius/this.zone.getMaxRadius() * particleNumber), 2, 3, 2);
                                 p.damage(Math.max(this.zone.getMaxRadius()/Math.max(radius, 0.1), 5)*1);
