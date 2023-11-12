@@ -169,4 +169,8 @@ public final class MiniRoyal extends JavaPlugin {
     public void updateZone() {
         this.zone = new Zone(this.miniRoyalMap);
     }
+
+    public boolean isInGame() {
+        return this.isInGame;
+    }
 }
