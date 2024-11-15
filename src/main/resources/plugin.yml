@@ -5,9 +5,12 @@ load: POSTWORLD
 
 commands:
   amr:
-    description: Admin command of Mini-Royal
+    description: Admin commands for Mini-Royal
     usage: /amr
     permission: miniroyal.admin
+  miniroyal:
+    description: Commands for Mini-Royal
+    usage: /miniroyal
 
 permissions:
   miniroyal.admin:

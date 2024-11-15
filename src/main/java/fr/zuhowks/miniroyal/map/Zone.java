@@ -6,7 +6,7 @@ import org.bukkit.Location;
 public class Zone {
 
     private final double maxRadius;
-    private int radius;
+    private double radius;
     public Zone(MiniRoyalMap miniRoyalMap) {
         final Location pos1 = miniRoyalMap.getPos1();
         final Location pos2 = miniRoyalMap.getPos2();
@@ -17,8 +17,11 @@ public class Zone {
         this.radius = (int) (this.maxRadius + 1);
     }
 
-    public void substractRadius(double toSub) {
-        this.radius-=toSub;
+    public void subRadius(double toSub) {
+        if (this.radius >= 20) {
+            this.radius-=toSub;
+        }
+
     }
 
     public double getRadius() {
